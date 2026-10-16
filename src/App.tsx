@@ -27,14 +27,26 @@ type Driver = {
 };
 
 const ORIGINAL_QUEUE: Driver[] = [
-  { name: 'Giovanilton Brito de Freitas', truck: 'FDZ0C43', trailer: 'FJX3581', region: 'SP' },
-  { name: 'Ivan Carlos Alves de Oliveira', truck: 'FPB7D72', trailer: 'FDB7956', region: 'SP' },
+  { name: 'Giovanilton Brito De Freitas', truck: 'FDZ0C43', trailer: 'FJX3581', region: 'SP' },
+  { name: 'Ivan Carlos Alves De Oliveira', truck: 'FPB7D72', trailer: 'FDB7956', region: 'SP' },
   { name: 'Izaias Fraga', truck: 'GEX7J17', trailer: 'MFE8782', region: 'SP' },
   { name: 'Jose Elves Matias', truck: 'FWI6H66', trailer: 'AHQ0113', region: 'SP' },
-  { name: 'Joselito Ferreira de Lima', truck: 'FPX1E68', trailer: 'FDZ5D94', region: 'SP' },
+  { name: 'Joselito Ferreira De Lima', truck: 'FPX1E68', trailer: 'FDZ5D94', region: 'SP' },
   { name: 'Luciano Oliveira Santana', truck: 'FXS5J85', trailer: 'GDU1108', region: 'SP' },
   { name: 'Nelson Godoy', truck: 'FWB9C19', trailer: 'FDZ0244', region: 'SP' },
-  { name: 'Robson Jose da Silva', truck: 'FVB3J92', trailer: 'FDP6054', region: 'SP' },
+  { name: 'Robson Jose Da Silva', truck: 'FVB3J92', trailer: 'FDP6054', region: 'SP' },
+  { name: 'Rogerio Da Silva Alves', truck: 'FXB0I17', trailer: 'FVV7H20', region: 'SP' },
+  { name: 'Roni Carlos Pereira De Souza', truck: 'GJU1B26', trailer: 'GCT3159', region: 'SP' },
+  { name: 'Sergio Luz Silva', truck: 'EVO9750', trailer: 'DJC9B01', region: 'SP' },
+  { name: 'Valter Nunes Ribeiro', truck: 'FDZ0231', trailer: 'FDZ0C32', region: 'SP' },
+  { name: 'Edijanio', truck: 'FDZ2272', trailer: 'IMZ0563', region: 'SP' },
+  { name: 'Luiz Augusto', truck: 'GJS0078', trailer: 'FDB7954', region: 'SP' },
+  { name: 'Alexandre', truck: 'FDZ0040', trailer: 'MJY0H84', region: 'SP' },
+  { name: 'Antonio', truck: 'EWJ4188', trailer: 'EPU6691', region: 'SP' },
+  { name: 'Jadilson', truck: 'BFZ8509', trailer: 'MCT1I39', region: 'SP' },
+  { name: 'Alan', truck: 'HYE7D75', trailer: 'FCY0418', region: 'SP' },
+  { name: 'Jason', truck: 'MTV0D08', trailer: 'MJC8F48', region: 'SP' },
+  { name: 'Diego Justino Ribeiro', truck: 'UQQ9I10', trailer: 'MKO7332', region: 'SP' },
 ];
 
 const slideLabels = ['Apresentação', 'O modelo', 'Na prática', 'Relatórios', 'Obrigado'];
@@ -111,23 +123,23 @@ function ModelSlide() {
     <div className="page-grid page-grid--model">
       <section className="page-copy">
         <span className="eyebrow">02 — O MODELO</span>
-        <h2>Uma fila viva.<br />Um serviço por vez.</h2>
+        <h2>Uma fila viva.<br />Uma ordem justa.</h2>
         <p>
-          O serviço fica destacado no topo. Abaixo dele, os motoristas aparecem em ordem de prioridade. A regra é visual, rápida e fácil de auditar.
+          Os motoristas aparecem em ordem de prioridade. Cada empenho envia imediatamente o motorista ao final da fila, promovendo a rotatividade.
         </p>
 
         <div className="steps">
           <div className="step-card">
             <div className="step-card__icon"><Route size={22} /></div>
-            <div><small>01</small><strong>Serviço disponível</strong><span>Origem, destino, horário e tipo de operação ficam claros.</span></div>
+            <div><small>01</small><strong>Ordem de prioridade</strong><span>O primeiro motorista da lista é o próximo da escala.</span></div>
           </div>
           <div className="step-card">
             <div className="step-card__icon"><GripVertical size={22} /></div>
-            <div><small>02</small><strong>Empenhar motorista</strong><span>Arraste o motorista para o serviço ou use o botão de empenho.</span></div>
+            <div><small>02</small><strong>Empenhar motorista</strong><span>Ao clicar em Empenhar, o motorista vai imediatamente para o fim da fila.</span></div>
           </div>
           <div className="step-card">
             <div className="step-card__icon"><ArrowDown size={22} /></div>
-            <div><small>03</small><strong>Exceção justificada</strong><span>Ao enviar para o fim da fila, o motivo é obrigatório.</span></div>
+            <div><small>03</small><strong>Exceção justificada</strong><span>Pular a ordem da fila ou usar a seta exige justificativa.</span></div>
           </div>
         </div>
       </section>
@@ -150,137 +162,87 @@ function ModelSlide() {
             </motion.div>
           ))}
         </div>
-        <div className="model-demo__foot"><ShieldCheck size={18} /> Toda mudança de posição fica associada a um motivo.</div>
+        <div className="model-demo__foot"><ShieldCheck size={18} /> Empenhos seguem a ordem; exceções exigem justificativa.</div>
       </section>
     </div>
   );
 }
 
-type Demand = { id: number; manifesto: string; driver: Driver | null };
-type PendingAction = { kind: 'bottom' | 'skip'; driver: Driver; demandId?: number };
+type PendingAction = { kind: 'bottom' | 'skip'; driver: Driver };
 
 function PracticeSlide() {
-  // Modelo totalmente local: nenhuma informação é persistida.
+  // Demonstração local: empenhar reposiciona imediatamente o motorista ao fim da fila.
   const [queue, setQueue] = useState<Driver[]>(() => [...ORIGINAL_QUEUE]);
-  const [demands, setDemands] = useState<Demand[]>([{ id: 1, manifesto: '', driver: null }]);
-  const [nextId, setNextId] = useState(2);
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [reason, setReason] = useState('');
   const [lastAction, setLastAction] = useState('Fila pronta para operação.');
+  const [assignments, setAssignments] = useState(0);
 
-  const addDemand = () => {
-    setDemands(current => [...current, { id: nextId, manifesto: '', driver: null }]);
-    setNextId(value => value + 1);
-  };
-  const nameOf = (demand: Demand) => demand.manifesto.trim() || 'Manifesto';
-  const assign = (driver: Driver, demandId: number, bypass = false) => {
-    const demand = demands.find(item => item.id === demandId);
-    if (!demand || demand.driver || !queue.some(item => item.name === driver.name)) return;
+  const assign = (driver: Driver, bypass = false) => {
+    if (!queue.some(item => item.name === driver.name)) return;
     if (queue[0]?.name !== driver.name && !bypass) {
-      setPending({ kind: 'skip', driver, demandId });
+      setPending({ kind: 'skip', driver });
       setReason('');
       return;
     }
-    setDemands(current => current.map(item => item.id === demandId ? { ...item, driver } : item));
-    setQueue(current => current.filter(item => item.name !== driver.name));
-    setLastAction(`${driver.name} empenhado em ${nameOf(demand)}${bypass ? ' (exceção justificada)' : ''}.`);
-  };
-  const finishService = (demandId: number) => {
-    const demand = demands.find(item => item.id === demandId);
-    if (!demand?.driver) return;
-    setQueue(current => [...current, demand.driver!]);
-    setDemands(current => current.map(item => item.id === demandId ? { ...item, driver: null } : item));
-    setLastAction(`${demand.driver.name} finalizou ${nameOf(demand)} e voltou ao final da fila.`);
+    setQueue(current => [...current.filter(item => item.name !== driver.name), driver]);
+    setAssignments(value => value + 1);
+    setLastAction(`${driver.name} empenhado e enviado ao fim da fila${bypass ? ' (quebra de ordem justificada)' : ''}.`);
   };
   const confirmReason = () => {
     if (!pending || !reason.trim()) return;
     if (pending.kind === 'bottom') {
       setQueue(current => [...current.filter(item => item.name !== pending.driver.name), pending.driver]);
       setLastAction(`${pending.driver.name} movido ao fim da fila (justificativa informada).`);
-    } else if (pending.demandId !== undefined) {
-      assign(pending.driver, pending.demandId, true);
+    } else {
+      assign(pending.driver, true);
     }
     setPending(null);
     setReason('');
   };
   const reset = () => {
     setQueue([...ORIGINAL_QUEUE]);
-    setDemands([{ id: 1, manifesto: '', driver: null }]);
-    setNextId(2);
     setPending(null);
     setReason('');
+    setAssignments(0);
     setLastAction('Fila reiniciada.');
   };
-  const available = demands.filter(item => !item.driver);
-  const busy = demands.filter(item => item.driver).length;
   return (
     <div className="practice-page">
       <div className="practice-head">
         <div>
           <span className="eyebrow">03 — NA PRÁTICA</span>
           <h2>Fila operacional interativa</h2>
-          <p>Crie demandas, empenhe motoristas e finalize os serviços para atualizar a ordem da escala.</p>
+          <p>Empenhe um motorista e ele vai imediatamente para o fim da fila. Sem criar demandas ou manifestos.</p>
         </div>
         <button className="ghost-button" onClick={reset}><RefreshCcw size={17} /> Reiniciar demo</button>
-      </div>
-      <div className="demand-section-title"><strong>DEMANDAS / SERVIÇOS</strong><button onClick={addDemand}>+ Nova demanda</button></div>
-      <div className="demands-list">
-        {demands.map((demand, position) => (
-          <div key={demand.id} className={`service-card service-card--drop demand-card ${demand.driver ? 'service-card--assigned' : ''}`}
-            onDragOver={event => { if (!demand.driver) event.preventDefault(); }}
-            onDrop={event => {
-              event.preventDefault();
-              const name = event.dataTransfer.getData('text/plain');
-              const driver = queue.find(item => item.name === name);
-              if (driver) assign(driver, demand.id);
-            }}>
-            <div className="service-card__tag">SERVIÇO {String(position + 1).padStart(2, '0')}</div>
-            <div className="service-card__main"><Route size={26} />
-              <div className="manifesto-field"><label htmlFor={`manifesto-${demand.id}`}>MANIFESTO</label>
-                <input id={`manifesto-${demand.id}`} value={demand.manifesto}
-                  onChange={event => setDemands(current => current.map(item => item.id === demand.id ? { ...item, manifesto: event.target.value } : item))}
-                  placeholder="Manifesto" />
-                <span>{demand.driver ? 'Serviço em andamento' : 'Aguardando motorista'}</span>
-              </div>
-            </div>
-            <div className="service-card__assignment">
-              {demand.driver ? <><Check size={19} /><div><small>MOTORISTA · EM SERVIÇO</small><strong>{demand.driver.name}</strong></div>
-                <button className="finish-service-button" onClick={() => finishService(demand.id)}>Finalizar serviço <Check size={15} /></button></>
-                : <><GripVertical size={19} /><div><small>MOTORISTA</small><strong>Arraste um motorista para este serviço</strong></div></>}
-            </div>
-          </div>
-        ))}
       </div>
       <div className="practice-grid">
         <section className="driver-list">
           <div className="driver-list__header"><span>ORDEM</span><span>MOTORISTA / CONJUNTO</span><span>REGIÃO</span><span>AÇÕES</span></div>
           <AnimatePresence initial={false}>
             {queue.map((driver, i) => (
-              <motion.div layout draggable
-                onDragStartCapture={event => {
-                  event.dataTransfer.setData('text/plain', driver.name);
-                }}
+              <motion.div layout
                 className={`driver-row ${i === 0 ? 'driver-row--next' : ''}`} key={driver.name}
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: .98 }}>
                 <div className="driver-row__order"><GripVertical size={16} /><strong>{String(i + 1).padStart(2, '0')}</strong></div>
                 <div className="driver-row__person"><strong>{driver.name}</strong><span>{driver.truck} · {driver.trailer}</span></div>
                 <span className="pill">{driver.region}</span>
                 <div className="driver-row__actions">
-                  <button className="assign-button" disabled={available.length === 0}
-                    onClick={() => assign(driver, available[0]?.id)}
-                    title={available.length ? 'Empenhar na primeira demanda disponível' : 'Crie uma nova demanda'}>
+                  <button className="assign-button" onClick={() => assign(driver)}
+                    title={i === 0 ? 'Empenhar e enviar ao fim da fila' : 'Empenhar fora da vez (exige justificativa)'}>
                     <Check size={16} /> Empenhar</button>
-                  <button className="down-button" onClick={() => { setPending({ kind: 'bottom', driver }); setReason(''); }} title="Enviar para o fim da fila"><ArrowDown size={17} /></button>
+                  <button className="down-button" onClick={() => { setPending({ kind: 'bottom', driver }); setReason(''); }} title="Enviar ao fim da fila com justificativa"><ArrowDown size={17} /></button>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
         </section>
         <aside className="practice-side">
-          <div className="status-card"><small>PRINCÍPIO DA ESCALA</small><strong>Terminou o serviço? Volta ao fim da fila.</strong>
-            <p>É possível empenhar em vários manifestos. Escolher alguém fora da vez exige justificativa.</p></div>
+          <div className="status-card"><small>PRINCÍPIO DA ESCALA</small><strong>Empenhou? Vai para o fim da fila.</strong>
+            <p>O primeiro motorista é empenhado com um clique. Escolher alguém fora da vez exige justificativa.</p></div>
           <div className="audit-card"><div className="audit-card__title"><Clock3 size={18} /> Última movimentação (demo)</div><p>{lastAction}</p></div>
-          <div className="mini-metrics"><div><UsersRound size={18} /><strong>{queue.length}</strong><span>na fila</span></div><div><Truck size={18} /><strong>{busy}</strong><span>empenhados</span></div></div>
+          <div className="mini-metrics"><div><UsersRound size={18} /><strong>{queue.length}</strong><span>na fila</span></div><div><Truck size={18} /><strong>{assignments}</strong><span>empenhos na demo</span></div></div>
         </aside>
       </div>
       <AnimatePresence>
@@ -288,7 +250,7 @@ function PracticeSlide() {
           <motion.div className="modal" role="dialog" aria-modal="true" aria-labelledby="reason-title" initial={{ opacity: 0, y: 18, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }}>
             <button className="modal__close" onClick={() => setPending(null)} aria-label="Fechar"><X size={18} /></button>
             <h3 id="reason-title">Justificativa</h3>
-            <p>{pending.kind === 'skip' ? 'Porque está pulando fila?' : `Por que enviar ${pending.driver.name} para o final da fila?`}</p>
+            <p>{pending.kind === 'skip' ? 'Por que está pulando a fila?' : `Por que enviar ${pending.driver.name} para o final da fila?`}</p>
             <label className="reason-label" htmlFor="reason-text">JUSTIFICATIVAS:</label>
             <textarea id="reason-text" rows={4} value={reason} onChange={event => setReason(event.target.value)} placeholder="Digite a justificativa..." autoFocus />
             <button className="modal__confirm" disabled={!reason.trim()} onClick={confirmReason}>Confirmar <ArrowRight size={17} /></button>
@@ -304,8 +266,8 @@ function PracticeSlide() {
 const REPORT_DATA = ORIGINAL_QUEUE.map((driver, index) => ({
   name: driver.name,
   short: driver.name.split(' ').slice(0, 2).join(' '),
-  trips: [18, 23, 16, 21, 19, 25, 17, 21][index],
-  nights: [5, 8, 4, 7, 6, 9, 4, 7][index],
+  trips: [18, 23, 16, 21, 19, 25, 17, 21, 20, 18, 24, 22, 19, 21, 17, 20, 23, 18, 22, 19][index],
+  nights: [5, 8, 4, 7, 6, 9, 4, 7, 6, 5, 8, 6, 5, 7, 4, 6, 8, 5, 7, 6][index],
 }));
 
 function ReportsSlide() {
@@ -314,12 +276,12 @@ function ReportsSlide() {
   const selection = chosen.length === 0 ? REPORT_DATA : REPORT_DATA.filter(item => chosen.includes(item.name));
   const avg = REPORT_DATA.reduce((sum, item) => sum + item.trips, 0) / REPORT_DATA.length;
   const avgNights = REPORT_DATA.reduce((sum, item) => sum + item.nights, 0) / REPORT_DATA.length;
-  const commonGrid = { left: 45, right: 24, top: 26, bottom: 58 };
+  const commonGrid = { left: 45, right: 24, top: 26, bottom: 110 };
   const tripsOption = {
     animationDuration: 650,
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
     grid: commonGrid,
-    xAxis: { type: 'category', data: REPORT_DATA.map(item => item.short), axisLabel: { rotate: 23, fontSize: 10, color: '#635a56', interval: 0 }, axisLine: { lineStyle: { color: '#e8e0dc' } }, axisTick: { show: false } },
+    xAxis: { type: 'category', data: REPORT_DATA.map(item => item.short), axisLabel: { rotate: 52, fontSize: 9, color: '#635a56', interval: 0 }, axisLine: { lineStyle: { color: '#e8e0dc' } }, axisTick: { show: false } },
     yAxis: { type: 'value', name: 'Viagens', minInterval: 1, splitLine: { lineStyle: { color: '#f0ebe8' } } },
     series: [{
       name: 'Viagens', type: 'bar', barMaxWidth: 35,
@@ -338,7 +300,7 @@ function ReportsSlide() {
     animationDuration: 650,
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
     grid: commonGrid,
-    xAxis: { type: 'category', data: selection.map(item => item.short), axisLabel: { rotate: 23, fontSize: 10, color: '#635a56', interval: 0 }, axisLine: { lineStyle: { color: '#e8e0dc' } }, axisTick: { show: false } },
+    xAxis: { type: 'category', data: selection.map(item => item.short), axisLabel: { rotate: 52, fontSize: 9, color: '#635a56', interval: 0 }, axisLine: { lineStyle: { color: '#e8e0dc' } }, axisTick: { show: false } },
     yAxis: { type: 'value', name: 'Pernoites', minInterval: 1, splitLine: { lineStyle: { color: '#f0ebe8' } } },
     series: [{
       name: 'Pernoites', type: 'bar', barMaxWidth: 35,
