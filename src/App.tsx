@@ -257,7 +257,11 @@ function PracticeSlide() {
           <AnimatePresence initial={false}>
             {queue.map((driver, i) => (
               <motion.div layout draggable
-                onDragStart={event => event.dataTransfer.setData('text/plain', driver.name)}
+                onDragStart={event => {
+                  if ('dataTransfer' in event) {
+                    event.dataTransfer.setData('text/plain', driver.name);
+                  }
+                }}
                 className={`driver-row ${i === 0 ? 'driver-row--next' : ''}`} key={driver.name}
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: .98 }}>
                 <div className="driver-row__order"><GripVertical size={16} /><strong>{String(i + 1).padStart(2, '0')}</strong></div>
